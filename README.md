@@ -1,4 +1,4 @@
-### Core-Java
+### Core Java
 
 author: Kun Xie
 
