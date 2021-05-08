@@ -154,6 +154,14 @@ cloned[5] = 12; // doesn't change luckyNumbers[5];
 
 ## 6.2.1 Why Lambdas?
 
+A **lambda expression** is a block of code that you can pass around so it can be executed later.
+
+In Java (OOP), just like 6.1.8 Comparator interface, but **lambda expression save you life here.**
+
+1. you have to create a class implementing a functional interface,
+2. write the code block by overriding the method of the functional interface
+3. create the object, and pass it.
+
 ## 6.2.2 The Syntax of Lambda Express
 
 ## 6.2.3 Functional Interfaces
@@ -170,19 +178,136 @@ cloned[5] = 12; // doesn't change luckyNumbers[5];
 
 # 6.3 Inner Classes
 
+- Inner class can be hidden from other classes in the same package.
+- Inner class methods can access the data from the scope in which they are defined
+  - including data that would otherwise be **private**.
+
 ## 6.3.1 Use of an Inner Class to Access Object State
+
+- An object that comes from an inner class has **an implicit reference** to the outer class object that instantiated it.
+
+  - in listing6.7, directly use `beep` field of outer class in the inner class.
+  - Only inner class can be `private`, other class always have either `package` or `public` class.
+  - `static` inner classes **do not** have this added pointer. (implicit reference)
+
+- (6.7) innerClass/InnerClassTest.java
 
 ## 6.3.2 Special Syntax Rules for Inner Classes
 
+- Proper syntax of outer reference is `OuterClass.this`
+- Write inner object constructor explicit `outerObject.new InnerClass(consctruction parameters)`
+- refer to an inner class as `OuterClass.InnerClass` when it occurs outside the scope of the outer class.
+
+- Any `static` fields declared in an inner class must be `final` and initialized with a `compile-time` constant.
+- An inner class cannot have `static` methods.
+
 ## 6.3.3 Are Inner Classes Useful? Actually Necessary? Secure?
+
+❓
 
 ## 6.3.4 Local Inner Classes
 
+```Java
+public void start() {
+    class TimePrinter implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            System.out.println("At the tone, the time is "
+                + Instant.ofEpochMilli(event.getWhen()));
+            if (beep) Toolkit.getDefaultToolkit().beep();
+        }
+    }
+    var listener = new TimePrinter();
+    var timer = new Timer(interval, listener);
+    timer.start();
+}
+```
+
+- we can also define the class **locally in a single method.**
+- local classes are never declared with an access specifier (Neither `public` nor `private`)
+- the scope is always restricted to the block in which they are declared.
+- completely hidden from the outside world。
+  - No method except `start` has any knowlege of the TimePrinter class.
+
 ## 6.3.5 Accessing Variables from Outer Methods
+
+- local classes can even access local variables
+  - these local variables must be **effective final**, they may never change once they have been assgined.
+    - when the method finished its code and exit, the local variable will no long exit.
 
 ## 6.3.6 Anonymous Inner Classes
 
+- for just one object of inner class, not necessary to name it. (**an anonymous inner class**)
+
+```Java
+public void start(int interval, boolean beep) {
+    // create a new object of a class that implements ActionListener interface
+    var listener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            System.out.println("At the tone, the time is "
+                + Instant.ofEpochMilli(event.getWhen()));
+            if (beep) Toolkit.getDefaultToolkit().beep();
+        }
+    }
+    var timer = new Timer(interval, listener);
+    timer.start();
+}
+```
+
+- Syntax is following
+
+```Java
+// the superType can be either interface or class
+new SuperType(construction parameters) {
+  //inner class methods and data
+}
+```
+
+- An anonymous inner class **can't have constructors**, since it doesn't have a name
+
+  - construction parameters are given to the superclass constructor.
+  - if SuperType is an interface, can't have consctruction parameters.
+
+- double brace initialization **rarely useful**
+
+```Java
+// option 1, traditional
+var friends = new ArrayList<String>()
+friends.add("Harry");
+friends.add("Tony");
+invite(friends);
+// option 2: double brace initialization
+// outer braces make an anonymous subclass
+// inner braces are an object initialization block
+invite(new ArrayList<String>() {{
+  add("Harry");
+  add("Tony");
+}});
+// option 3: use built-in method ✅
+invite(List.of("Harry", "Tony"));
+```
+
+- be careful with `equals()` method
+
+  - An anonymous subclass will fail `if (getClass() != other.getClass()) return false;`
+  - 这里很好理解，因为这样的匿名函数没有名字,
+
+- an static method has no `this`, can't use `this.getClass()`
+
+  - `new Object().getClass().getEnclosingClass()` // gets class of static method
+  - create an anonymous object of an anonymous subclass of `Object`, and `getEnclosingClass()` gets the class containing the static method.
+
+- (6.8) anonymousInnerClass/AnonymousInnerClassTest.java
+
 ## 6.3.7 Static Inner Classes
+
+- only inner classes can be declared `static`, also called nested class.
+  - static inner class has only one difference: **no reference to the outer class object.**
+  - static inner class can have static fields and methods.
+- Inner class declared inside an interface are automatically **static** and **public**
+
+- (6.9) staticInnerClass/StaticInnerClassTest.java
 
 # 6.4 Service Loaders
 
