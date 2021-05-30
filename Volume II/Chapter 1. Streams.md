@@ -4,13 +4,13 @@
 // iterate on a List<String> words
 int count = 0;
 for (String w: words) {
-    if (w.length() . 12) count++;
+    if (w.length() > 12) count++;
 }
 // same operations with stream
 long count = words.stream().filter(w -> w.length() > 12).count();
 ```
 
-- Streams follow the "What, not how" principle. in the example above, we describe what needs to be done: get the long words and count them.
+- Streams follow the **"What, not how"** principle. In the example above, we describe what needs to be done: get the long words and count them.
 - significant differences between `Stream` and `Collections`
 
   1. A Stream does not store its elements
@@ -28,7 +28,7 @@ long count = words.stream().filter(w -> w.length() > 12).count();
 
 - (1.1) streams/CountLongWords.java
 
-| `java.util.Stream<T>`                      | description |
+<!-- | `java.util.Stream<T>`                      | description |
 | ------------------------------------------ | ----------- |
 | `Stream<T> filter(Predicate<? super T> p)` |             |
 | `long count()`                             |             |
@@ -36,7 +36,7 @@ long count = words.stream().filter(w -> w.length() > 12).count();
 | `java.util.Collection<E>`            | description |
 | ------------------------------------ | ----------- |
 | `default Stream<E> stream()`         |             |
-| `default Stream<E> parallelStream()` |             |
+| `default Stream<E> parallelStream()` |             | -->
 
 # 1.2 Stream Creation
 
@@ -73,7 +73,7 @@ Stream<BigInteger> integers = Stream.iterate(BigInteger.ZERO,
 
 - `Stream.ofNullable` makes a really short stream from an object
 
-  - empty stream of the `object == nul`l`, otherwise, contains only one element just the `object`
+  - empty stream of the `object == null`, otherwise, contains only one element just the `object`
   - useful in conjunction with `flatMap`
 
 - Other API methods yielding streams
@@ -95,8 +95,7 @@ try (Stream<String> lines = Files.lines(path)) {
 
   - `StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false);`
 
-- We should not modify the underlying collection of a stream
-  - **noninterferences**
+- We should not modify the underlying collection of a stream. **noninterferences**
 
 ```Java
 List<String> wordList = ...;
@@ -135,13 +134,13 @@ Stream<String> result = words.stream().flatMap(w -> codePoints(w));
 
 # 1.4 Extracting Substreams and Combining Streams
 
-| `java.util.stream.Stream`                                                   | description                                                                            |
-| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `Stream<T> limit(long maxSize)`                                             | yields a stream with up to `maxSize` of the initial elements from this stream          |
-| `Stream<T> skip(long n)`                                                    | skip the initial `n` elements of this stream                                           |
-| `Stream<T> takeWhile(Predicate<? super T> predicate)`                       |                                                                                        |
-| `Stream<T> dropWhile(Predicate<? super T> predicate)`                       |                                                                                        |
-| `static <T> Stream<T> concat(Stream<? extends T> a, Stream<? extends T> b)` | yields a stream whose elements are the elements of `a` followed by the elements of `b` |
+| `java.util.stream.Stream`                                                   | description                                                                                                                                                 |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Stream<T> limit(long maxSize)`                                             | yields a stream with up to `maxSize` of the initial elements from this stream                                                                               |
+| `Stream<T> skip(long n)`                                                    | skip the initial `n` elements of this stream                                                                                                                |
+| `Stream<T> takeWhile(Predicate<? super T> predicate)`                       | yields a stream whose elements are the **initial elements** of this stream that **fulfill the predicate**.                                                  |
+| `Stream<T> dropWhile(Predicate<? super T> predicate)`                       | dropping elements while a condition is true.                                                                                                                |
+| `static <T> Stream<T> concat(Stream<? extends T> a, Stream<? extends T> b)` | yields a stream whose elements are the elements of `a` followed by the elements of `b`. **`a` should not be infinite otherwise `b` wouldn't get a chance.** |
 
 # 1.5 Other Stream Transformations
 
@@ -166,21 +165,21 @@ System.out.println("largest: " + largest.orElse(""));
 Optional<String> startsWithQ = words.filter(s -> s.startWith("Q")).findFirst();
 
 // find any match, effective when you parallelize the stream
-Optional<String> startsWithQ = words.parallel().filter(s -> s.startWith("Q")).findFirst();
+Optional<String> startsWithQ = words.parallel().filter(s -> s.startWith("Q")).findAny();
 
 //check if any match exists
-boolean aWordStartsWithQ = words.parallel().anyMatch(s -> s.startsWWith("Q"));
+boolean aWordStartsWithQ = words.parallel().anyMatch(s -> s.startsWith("Q"));
 ```
 
-| `java.util.stream.Stream`                           | description |
-| --------------------------------------------------- | ----------- |
-| `Optional<T> max(Comparator<? super T> comparator)` |             |
-| `Optional<T> min(Comparator<? super T> comparator)` |             |
-| `Optional<T> findFirst()`                           |             |
-| `Option<T> findAny()`                               |             |
-| `boolean anyMatch(Predicate<? super T> predicate)`  |             |
-| `boolean allMatch(Predicate<? super T> predicate)`  |             |
-| `boolean noneMatch(Predicate<? super T> predicate)` |             |
+| `java.util.stream.Stream`                           |
+| --------------------------------------------------- |
+| `Optional<T> max(Comparator<? super T> comparator)` |
+| `Optional<T> min(Comparator<? super T> comparator)` |
+| `Optional<T> findFirst()`                           |
+| `Option<T> findAny()`                               |
+| `boolean anyMatch(Predicate<? super T> predicate)`  |
+| `boolean allMatch(Predicate<? super T> predicate)`  |
+| `boolean noneMatch(Predicate<? super T> predicate)` |
 
 # 1.7 The Optional Type
 
@@ -196,11 +195,11 @@ String result = optionalString.orElseGet(() -> System.getProperty("myapp.default
 String result = optionalString.orElseThrow(IllegalStateException::new);
 ```
 
-| `java.util.Optional`                                                          | description |
-| ----------------------------------------------------------------------------- | ----------- |
-| `T orElse(T other)`                                                           |             |
-| `T orElseGet(Supplier<? extends T> other)`                                    |             |
-| `<X extends Throwable> T orElseThrow(Suppier<? extends X> exceptionSupplier)` |             |
+| `java.util.Optional`                                                          |
+| ----------------------------------------------------------------------------- |
+| `T orElse(T other)`                                                           |
+| `T orElseGet(Supplier<? extends T> other)`                                    |
+| `<X extends Throwable> T orElseThrow(Suppier<? extends X> exceptionSupplier)` |
 
 ## 1.7.2 Consuming an Optional Value
 
@@ -222,7 +221,7 @@ String result = optionalString.orElseThrow(IllegalStateException::new);
 - we can add to a list if it's present
   - `optionalValue.map(results::add);`
   - if `optionalValue` is empty, nothing happens.
-- use `filter` method before or after transfoming it
+- use `filter` method **before or after** transfoming it
   - `Optional<String> transformed = optionalString.filter(s -> s.length() >= 8).map(String::toUpperCase);`
 - substitute an alternative `Optional` for an empty `Optional` with `or` method
   - `Optional<String> result = optionalString.or(() -> alternatives.stream().findFirst());`
@@ -293,7 +292,7 @@ Stream<User> users = ids.map(Users::lookup).flatMap(Stream::ofNullable); // opti
 
 # 1.8 Collecting Results
 
-- When doen with a stream, try to look at the results
+- When done with a stream, try to look at the results
 - old-fashioned `iterator` to visit all elements (NOT recommended ❌)
 - `forEach()` apply a function to each element: `stream.forEach(System.out::println)`
   - On a **parallel stream**, the `forEach` method traverses elements in arbitrary order, can use `forEachOrdered()` method instead
@@ -361,16 +360,17 @@ Map<String, List<Locale>> countryToLocales =
     locales.collect(Collectors.groupingBy(Locale::getCountry));
 ```
 
-- When the classifier function is a predicate function (functions returning `bolean` values)
+- When the classifier function is a predicate function (functions returning `boolean` values)
+
   - the stream elements are partitioned into two lists, `true` or `false` key
   - In such a case, use `paritioningBy` is more efficient
 
-```Java
-Map<Boolean, List<Locale>> englishAndOtherLocales = locales.collect(
-  Collectors.partioningBy(l -> l.getLanguage().equals("en"));
-);
-List<Locale> englishLocales = englishAndOtherLocales.get(true);
-```
+  ```Java
+  Map<Boolean, List<Locale>> englishAndOtherLocales = locales.collect(
+    Collectors.partioningBy(l -> l.getLanguage().equals("en"));
+  );
+  List<Locale> englishLocales = englishAndOtherLocales.get(true);
+  ```
 
 # 1.11 Downstream Collectors
 
@@ -411,10 +411,10 @@ List<Locale> englishLocales = englishAndOtherLocales.get(true);
   ```
 - `mapping` applies a function to each collected element and passes the results to a downstream collector.
 
-  - `flatMapping` return streams
+  - `flatMapping`, for use with **functions that returns stream**
 
   ```Java
-  Map<Character, Integer> stringLengthsByStartingLetter = strings.collect(
+  Map<Character, Set<Integer>> stringLengthsByStartingLetter = strings.collect(
     groupingBy(s -> s.charAt(0), mapping(String::length, toSet()))
   );
 
@@ -472,7 +472,7 @@ List<Locale> englishLocales = englishAndOtherLocales.get(true);
 
 - to get the sum of length of an array of strings
 
-  - you need to provide **an accumulator** first (parallel by default, so will generate multiple reuslts)
+  - you need to provide **an accumulator** first (parallel by default, so will generate multiple results)
     - `BiFunction<T, U, T>` interface - T, U params, returns T
   - then you need to combine their results. (**an combiner**)
     - for **sequential stream**, combiner will **not be executed**.
@@ -488,12 +488,12 @@ List<Locale> englishLocales = englishAndOtherLocales.get(true);
 
 - sometimes, `reduce` is not general enough. ❗️
 
-  - suppose you want to collect results in a **BitSet** parallelly. because reduce is not thread-safe, you should use **collect** instead with three arguments ❗️
+  - suppose you want to **collect** results in a **BitSet** parallelly. because reduce is not thread-safe, you should use **collect** instead with three arguments ❗️
     1. A **supplier** to make new instances of the target object
        - `Supplier<R>` interface, no params, return R
-    2. An **accumlator** that adds an element to the target. (executed in parallel)
+    2. An **accumlator** that adds an element to the target
        - `BiConsumer<R, T>` interface, no returns, R absorb T
-    3. A **combiner** that merges two objects into one.
+    3. A **combiner** that merges two objects into one
        - for **sequential stream**, combiner will **not be executed**. 这里跟 reducer 类似
        - `BiConsumer<R, T>` interface, no returns, R absorb T
 
